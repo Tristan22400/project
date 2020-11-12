@@ -1,4 +1,5 @@
 import flask
+import flask_cors
 
 from .entities.entity import Session, engine, Base
 from .entities.exam import Exam, ExamSchema
@@ -6,6 +7,7 @@ from .entities.exam import Exam, ExamSchema
 
 # creating the Flask application
 app = flask.Flask(__name__)
+flask_cors.CORS(app)
 
 # if needed, generate database schema
 Base.metadata.create_all(engine)
