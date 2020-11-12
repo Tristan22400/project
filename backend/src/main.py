@@ -9,6 +9,7 @@ from .entities.exam import Exam, ExamSchema
 app = flask.Flask(__name__)
 flask_cors.CORS(app)
 
+
 # if needed, generate database schema
 Base.metadata.create_all(engine)
 
