@@ -1,12 +1,5 @@
-from datetime import datetime
-from sqlalchemy import create_engine, Column, String, Integer, DateTime
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker
-
-engine = create_engine('sqlite:///foo.db')
-Session = sessionmaker(bind=engine)
-
-Base = declarative_base()
+import datetime
+from sqlalchemy import Column, String, Integer, DateTime
 
 
 class Entity():
@@ -16,6 +9,6 @@ class Entity():
     last_updated_by = Column(String)
 
     def __init__(self, created_by):
-        self.created_at = datetime.now()
-        self.updated_at = datetime.now()
+        self.created_at = datetime.datetime.now()
+        self.updated_at = datetime.datetime.now()
         self.last_updated_by = created_by

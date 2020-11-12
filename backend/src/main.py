@@ -1,48 +1,38 @@
+import os
+
 import flask
 import flask_cors
 
-from .entities.entity import Session, engine, Base
-from .entities.exam import Exam, ExamSchema
+from .db import get_engine
+from .entities.base import Base
 
 
-# creating the Flask application
-app = flask.Flask(__name__)
-flask_cors.CORS(app)
+def create_app(test_config=None):
+    # creating the Flask application
+    app = flask.Flask(__name__, instance_relative_config=True)
+    flask_cors.CORS(app)
 
+    # load configuration from config.py
+    app.config.from_object('config')
 
-# if needed, generate database schema
-Base.metadata.create_all(engine)
+    if test_config is None:
+        # load the instance/config.py, if it exists, when not testing
+        app.config.from_pyfile('config.py', silent=True)
+    else:
+        # load the test config if passed in
+        app.config.from_mapping(test_config)
 
+    # ensure the instance folder exists
+    try:
+        os.makedirs(app.instance_path)
+    except OSError:
+        pass
 
-@app.route('/exams')
-def get_exams():
-    # fetching from the database
-    session = Session()
-    exam_objects = session.query(Exam).all()
+    # if needed, generate database schema
+    with app.app_context():
+        Base.metadata.create_all(get_engine())
 
-    # transforming into JSON-serializable objects
-    schema = ExamSchema(many=True)
-    exams = schema.dump(exam_objects)
+    from . import exams
+    app.register_blueprint(exams.blueprint)
 
-    # serializing as JSON
-    session.close()
-    return flask.jsonify(exams)
-
-
-@app.route('/exams', methods=['POST'])
-def add_exam():
-    # mount exam object
-    posted_exam = ExamSchema(
-        only=('title', 'description')).load(flask.request.get_json())
-
-    exam = Exam(**posted_exam, created_by="HTTP post request")
-
-    # persist exam
-    session = Session()
-    session.add(exam)
-    session.commit()
-
-    # return created exam
-    new_exam = ExamSchema().dump(exam)
-    session.close()
-    return flask.jsonify(new_exam), 201
+    return app

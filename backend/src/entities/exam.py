@@ -1,7 +1,8 @@
 import marshmallow
 import sqlalchemy
 
-from .entity import Entity, Base
+from .entity import Entity
+from .base import Base
 
 
 class Exam(Entity, Base):
