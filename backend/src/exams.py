@@ -24,7 +24,7 @@ def get_exams():
 
 
 @blueprint.route('/exams', methods=['POST'])
-#@login_required
+#@requires_auth
 def add_exam():
     # mount exam object
     posted_exam = ExamSchema(
@@ -41,3 +41,14 @@ def add_exam():
     new_exam = ExamSchema().dump(exam)
     session.close()
     return flask.jsonify(new_exam), 201
+
+
+@blueprint.route('/exams/<exam_id>', methods=['DELETE'])
+#@requires_admin
+def delete_exam(exam_id):
+    db = get_session()
+    exam = db.query(Exam).filter_by(id=exam_id).first()
+    db.delete(exam)
+    db.commit()
+    db.close()
+    return '', 201

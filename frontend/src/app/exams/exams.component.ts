@@ -21,10 +21,11 @@ import {ExamsApiService} from './exams-api.service';
             molestie non nibh suscipit, faucibus euismod sapien.
           </p>
           <button mat-raised-button color="accent">Start Exam</button>
+          <button mat-button color="warn" *ngIf="isAdmin()" (click)="delete(exam.id)">Delete</button>
         </mat-card-content>
       </mat-card>
     </div>
-    <button mat-fab color="primary" *ngIf="authenticated"
+    <button mat-fab color="primary" *ngIf="!authenticated"
             class="new-exam" routerLink="/new-exam">
       <i class="material-icons">note_add</i>
     </button>
@@ -32,24 +33,39 @@ import {ExamsApiService} from './exams-api.service';
   styleUrls: ['exams.component.css'],
 })
 
-export class ExamsComponent implements OnInit, OnDestroy {
-  examsListSubs: Subscription;
+export class ExamsComponent implements OnInit, OnDestroy
+{
+    examsListSubs: Subscription;
     examsList: Exam[];
     authenticated = false;
 
-  constructor(private examsApi: ExamsApiService) {
-  }
+    constructor(private examsApi: ExamsApiService)
+    {}
 
-  ngOnInit() {
-    this.examsListSubs = this.examsApi
-      .getExams()
-        .subscribe(
-            res => {this.examsList = res;},
-            console.error);
-      const self = this;
-  }
+    ngOnInit()
+    {
+        this.examsListSubs = this.examsApi
+            .getExams()
+            .subscribe(res => {this.examsList = res;}, console.error);
+        const self = this;
+    }
 
-  ngOnDestroy() {
-    this.examsListSubs.unsubscribe();
-  }
+    ngOnDestroy()
+    {
+        this.examsListSubs.unsubscribe();
+    }
+
+    delete(examId: number)
+    {
+        this.examsApi
+            .deleteExam(examId)
+            .subscribe(() => {
+                this.examsListSubs = this.examsApi.getExams().subscribe(
+                    res => {this.examsList = res;}, console.error)}, console.error);
+    }
+
+    isAdmin()
+    {
+        return true;
+    }
 }

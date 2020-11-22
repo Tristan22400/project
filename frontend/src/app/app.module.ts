@@ -2,6 +2,7 @@ import {NoopAnimationsModule} from '@angular/platform-browser/animations';
 import {MatToolbarModule} from '@angular/material/toolbar';
 import {MatButtonModule} from '@angular/material/button';
 import {MatCardModule} from '@angular/material/card';
+import {MatInputModule} from '@angular/material/input';
 
 import {BrowserModule} from '@angular/platform-browser';
 import {NgModule} from '@angular/core';
@@ -12,11 +13,12 @@ import {AppComponent} from './app.component';
 import {ExamsApiService} from './exams/exams-api.service';
 import {ExamFormComponent} from './exams/exam-form.component';
 import {ExamsComponent} from './exams/exams.component';
-
+import {AboutComponent} from './about.component';
 
 const appRoutes: Routes = [
-  { path: 'new-exam', component: ExamFormComponent },
-  { path: '', component: ExamsComponent },
+    { path: 'new-exam', component: ExamFormComponent },
+    { path: 'about', component: AboutComponent },
+    { path: '', component: ExamsComponent },
 ];
 
 
@@ -25,6 +27,7 @@ const appRoutes: Routes = [
       AppComponent,
       ExamFormComponent,
       ExamsComponent,
+      AboutComponent,
   ],
   imports: [
       BrowserModule,
@@ -34,6 +37,7 @@ const appRoutes: Routes = [
       MatToolbarModule,
       MatButtonModule,
       MatCardModule,
+      MatInputModule,
   ],
     providers: [ExamsApiService],
     bootstrap: [AppComponent]
