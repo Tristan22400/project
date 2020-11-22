@@ -1,3 +1,8 @@
+import {NoopAnimationsModule} from '@angular/platform-browser/animations';
+import {MatToolbarModule} from '@angular/material/toolbar';
+import {MatButtonModule} from '@angular/material/button';
+import {MatCardModule} from '@angular/material/card';
+
 import {BrowserModule} from '@angular/platform-browser';
 import {NgModule} from '@angular/core';
 import {HttpClientModule} from '@angular/common/http';
@@ -25,6 +30,10 @@ const appRoutes: Routes = [
       BrowserModule,
       HttpClientModule,
       RouterModule.forRoot(appRoutes,),
+      NoopAnimationsModule,
+      MatToolbarModule,
+      MatButtonModule,
+      MatCardModule,
   ],
     providers: [ExamsApiService],
     bootstrap: [AppComponent]
