@@ -3,7 +3,9 @@ import os
 import flask
 import flask_cors
 
-from .db import get_engine
+# from . import auth
+from . import db
+from . import exams
 from .entities.base import Base
 
 
@@ -30,9 +32,9 @@ def create_app(test_config=None):
 
     # if needed, generate database schema
     with app.app_context():
-        Base.metadata.create_all(get_engine())
+        Base.metadata.create_all(db.get_engine())
 
-    from . import exams
+    # app.register_blueprint(auth.blueprint)
     app.register_blueprint(exams.blueprint)
 
     return app

@@ -1,5 +1,6 @@
 import flask
 
+from .auth import login_required
 from .db import get_session
 from .entities.exam import Exam, ExamSchema
 
@@ -23,6 +24,7 @@ def get_exams():
 
 
 @blueprint.route('/exams', methods=['POST'])
+#@login_required
 def add_exam():
     # mount exam object
     posted_exam = ExamSchema(
