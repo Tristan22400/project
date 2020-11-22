@@ -14,6 +14,7 @@ Adapted from:
 
         npm install -g @angular/cli
         npm install --save rxjs-compat
+        npm install @angular/material @angular/cdk hammerjs
 
 * Install Python Anaconda from https://docs.conda.io/en/latest/miniconda.html,
   then install a Python virtual environment with required dependencies:
