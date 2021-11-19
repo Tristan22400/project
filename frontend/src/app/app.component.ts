@@ -14,8 +14,8 @@ import {API_URL} from './env';
       <!-- This fills the remaining space of the current row -->
       <span class="fill-remaining-space"></span>
 
-      <button mat-button (click)="signIn()" *ngIf="!authenticated">Sign In</button>
-      <button mat-button (click)="register()" *ngIf="!authenticated">Sign Up</button>
+      <button mat-button routerLink="login" *ngIf="!authenticated">Sign In</button>
+      <button mat-button routerLink="register" *ngIf="!authenticated">Sign Up</button>
       <button mat-button (click)="signOut()" *ngIf="authenticated">Sign Out</button>
     </mat-toolbar>
 
@@ -37,9 +37,7 @@ export class AppComponent implements OnInit {
 
     authenticated = false;
 
-    signIn = false;
     signOut = false;
-    register = false;
 
     about()
     {
@@ -48,7 +46,8 @@ export class AppComponent implements OnInit {
             .pipe(catchError(AppComponent._handleError));
     }
 
-    ngOnInit() {
+    ngOnInit()
+    {
         const self = this;
     }
 }

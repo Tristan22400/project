@@ -10,15 +10,21 @@ import {HttpClientModule} from '@angular/common/http';
 import {RouterModule, Routes} from '@angular/router';
 
 import {AppComponent} from './app.component';
+import {AboutComponent} from './about.component';
 import {ExamsApiService} from './exams/exams-api.service';
 import {ExamFormComponent} from './exams/exam-form.component';
 import {ExamsComponent} from './exams/exams.component';
-import {AboutComponent} from './about.component';
+import {AuthApiService} from './auth/auth-api.service';
+import {LoginComponent} from './auth/login.component';
+import {RegisterComponent} from './auth/register.component';
+
 
 const appRoutes: Routes = [
-    { path: 'new-exam', component: ExamFormComponent },
-    { path: 'about', component: AboutComponent },
-    { path: '', component: ExamsComponent },
+    {path: '', component: ExamsComponent},
+    {path: 'register', component: RegisterComponent},
+    {path: 'login', component: LoginComponent},
+    {path: 'new-exam', component: ExamFormComponent},
+    {path: 'about', component: AboutComponent},
 ];
 
 
@@ -28,6 +34,8 @@ const appRoutes: Routes = [
       ExamFormComponent,
       ExamsComponent,
       AboutComponent,
+      LoginComponent,
+      RegisterComponent,
   ],
   imports: [
       BrowserModule,
@@ -39,7 +47,10 @@ const appRoutes: Routes = [
       MatCardModule,
       MatInputModule,
   ],
-    providers: [ExamsApiService],
+    providers: [
+        ExamsApiService,
+        AuthApiService
+    ],
     bootstrap: [AppComponent]
 })
 export class AppModule { }

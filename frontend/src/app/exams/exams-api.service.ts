@@ -6,11 +6,12 @@ import {API_URL} from '../env';
 import {Exam} from './exam.model';
 
 @Injectable()
-export class ExamsApiService {
+export class ExamsApiService
+{
+    constructor(private http: HttpClient)
+    {}
 
-    constructor(private http: HttpClient) {}
-
-    private static _handleError(err: HttpErrorResponse | any)
+    private static handleError(err: HttpErrorResponse | any)
     {
         return Observable.throw(err.message || 'Error: Unable to complete request.');
     }
@@ -20,16 +21,18 @@ export class ExamsApiService {
     {
         return this.http
             .get<Exam[]>(`${API_URL}/exams`)
-            .pipe(catchError(ExamsApiService._handleError));
+            .pipe(catchError(ExamsApiService.handleError));
     }
 
-    saveExam(exam: Exam): Observable<any> {
-        return this.http
-            .post(`${API_URL}/exams`, exam);
+    saveExam(exam: Exam): Observable<any>
+    {
+        return this.http.post(`${API_URL}/exams`, exam);
     }
 
     deleteExam(examId: number)
     {
         return this.http.delete(`${API_URL}/exams/${examId}`);
     }
+
+
 }

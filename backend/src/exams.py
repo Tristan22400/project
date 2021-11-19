@@ -1,6 +1,6 @@
 import flask
 
-from .auth import login_required
+from .auth import requires_auth
 from .db import get_session
 from .entities.exam import Exam, ExamSchema
 

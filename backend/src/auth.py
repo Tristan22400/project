@@ -4,9 +4,10 @@ import flask
 import werkzeug.security
 
 from .db import get_session
+from .entities.auth import Auth, AuthSchema
 
 
-blueprint = flask.Blueprint('auth', __name__, url_prefix='/auth')
+blueprint = flask.Blueprint('auth', __name__)
 
 
 class AuthError(Exception):
@@ -16,65 +17,65 @@ class AuthError(Exception):
         self.status_code = status_code
 
 
-@blueprint.route('/register', methods=('GET', 'POST'))
+@blueprint.route('/register', methods=['POST'])
 def register():
-    if flask.request.method == 'POST':
-        username = flask.request.form['username']
-        password = flask.request.form['password']
-        db = get_session()
-        error = None
+    print(f'registering... {flask.request.get_json()}')
+    posted_auth = AuthSchema(
+        only=('login', 'password')).load(flask.request.get_json())
+    auth = Auth(
+        posted_auth['login'],
+        werkzeug.security.generate_password_hash(posted_auth['password']),
+        created_by='HTTP post request')
 
-        if not username:
-            error = 'Username is required.'
-        elif not password:
-            error = 'Password is required.'
-        elif db.execute(
-                'SELECT id FROM user WHERE username = ?', (username,)
-        ).fetchone() is not None:
-            error = 'User {} is already registered.'.format(username)
+    session = get_session()
+    error = None
 
-        if error is None:
-            db.execute(
-                'INSERT INTO user (username, password) VALUES (?, ?)',
-                (username, werkzeug.security.generate_password_hash(password))
-            )
-            db.commit()
-            return flask.redirect(flask.url_for('auth.login'))
+    if not auth.login:
+        error = 'Login is required.'
+    elif not auth.password:
+        error = 'Password is required.'
+    elif session.execute(
+            'SELECT id FROM auth WHERE login = :login', {'login': auth.login}
+    ).fetchone() is not None:
+        error = f'User {auth.login} is already registered.'
 
-        raise AuthError({
-            'code': 'registration failed',
-            'description': error}, 401)
+    if error is None:
+        session.add(auth)
+        session.commit()
+        session.close()
+        return flask.jsonify({'login': auth.login}), 201
 
-    return flask.render_template('auth/register.html')
+    raise AuthError({
+        'code': 'registration failed',
+        'description': error}, 401)
 
 
-@blueprint.route('/login', methods=('GET', 'POST'))
+@blueprint.route('/login', methods=['POST'])
 def login():
-    if flask.request.method == 'POST':
-        username = flask.request.form['username']
-        password = flask.request.form['password']
-        db = get_session()
-        error = None
-        user = db.execute(
-            'SELECT * FROM user WHERE username = ?', (username,)
-        ).fetchone()
+    posted_auth = AuthSchema(
+        only=('login', 'password')).load(flask.request.get_json())
+    auth = Auth(**posted_auth, created_by='HTTP post request')
 
-        if user is None:
-            error = 'Incorrect username.'
-        elif not werkzeug.security.check_password_hash(
-                user['password'], password):
-            error = 'Incorrect password.'
+    db = get_session()
+    error = None
+    user = db.execute(
+        'SELECT * FROM auth WHERE login = :login', {'login': auth.login}
+    ).fetchone()
 
-        if error is None:
-            flask.session.clear()
-            flask.session['user_id'] = user['id']
-            return flask.redirect(flask.url_for('index'))
+    if user is None:
+        error = 'Incorrect username.'
+    elif not werkzeug.security.check_password_hash(
+            user['password'], auth.password):
+        error = 'Incorrect password.'
 
-        raise AuthError({
-            'code': 'login failed',
-            'description': error}, 401)
+    if error is None:
+        flask.session.clear()
+        flask.session['user_id'] = user['id']
+        return flask.jsonify({'login': auth.login}), 201
 
-    return flask.render_template('auth/login.html')
+    raise AuthError({
+        'code': 'login failed',
+        'description': error}, 401)
 
 
 @blueprint.before_app_request
@@ -85,17 +86,17 @@ def load_logged_in_user():
         flask.g.user = None
     else:
         flask.g.user = get_session().execute(
-            'SELECT * FROM user WHERE id = ?', (user_id,)
+            'SELECT * FROM user WHERE id = :login', {'login': user_id}
         ).fetchone()
 
 
 @blueprint.route('/logout')
 def logout():
     flask.session.clear()
-    return flask.redirect(flask.url_for('index'))
+    return None, 204
 
 
-def login_required(view):
+def requires_auth(view):
     @functools.wraps(view)
     def wrapped_view(**kwargs):
         if flask.g.user is None:
